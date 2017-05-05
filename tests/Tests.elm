@@ -130,7 +130,7 @@ point3dPlaceInIsTransformBy : Test
 point3dPlaceInIsTransformBy =
     Test.fuzz2 Fuzz.point3d
         Fuzz.frame3d
-        "Point3d.placeIn is equivalent to transformBy with Frame3d.toMat4"
+        "Point3d.placeIn is equivalent to transformBy Frame3d.toMat4"
         (\point frame ->
             point
                 |> Point3d.transformBy (Frame3d.toMat4 frame)
@@ -142,7 +142,7 @@ vector3dPlaceInIsTransformBy : Test
 vector3dPlaceInIsTransformBy =
     Test.fuzz2 Fuzz.vector3d
         Fuzz.frame3d
-        "Vector3d.placeIn is equivalent to transformBy with Frame3d.toMat4"
+        "Vector3d.placeIn is equivalent to transformBy Frame3d.toMat4"
         (\vector frame ->
             vector
                 |> Vector3d.transformBy (Frame3d.toMat4 frame)
