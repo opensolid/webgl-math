@@ -150,6 +150,30 @@ vector3dPlaceInIsTransformBy =
         )
 
 
+point3dRelativeToIsTransformByInverse : Test
+point3dRelativeToIsTransformByInverse =
+    Test.fuzz2 Fuzz.point3d
+        Fuzz.frame3d
+        "Point3d.relativeTo is equivalent to transformBy inverse of Frame3d.toMat4"
+        (\point frame ->
+            point
+                |> Point3d.transformBy (Math.Matrix4.inverseOrthonormal (Frame3d.toMat4 frame))
+                |> Expect.point3dWithin 1.0e-6 (Point3d.relativeTo frame point)
+        )
+
+
+vector3dRelativeToIsTransformByInverse : Test
+vector3dRelativeToIsTransformByInverse =
+    Test.fuzz2 Fuzz.vector3d
+        Fuzz.frame3d
+        "Vector3d.relativeTo is equivalent to transformBy inverse of Frame3d.toMat4"
+        (\vector frame ->
+            vector
+                |> Vector3d.transformBy (Math.Matrix4.inverseOrthonormal (Frame3d.toMat4 frame))
+                |> Expect.vector3dWithin 1.0e-6 (Vector3d.relativeTo frame vector)
+        )
+
+
 all : Test
 all =
     Test.describe "OpenSolid.LinearAlgebra"
@@ -163,4 +187,6 @@ all =
         , vector3dPlaceInIsTransform
         , point3dPlaceInIsTransformBy
         , vector3dPlaceInIsTransformBy
+        , point3dRelativeToIsTransformByInverse
+        , vector3dRelativeToIsTransformByInverse
         ]
