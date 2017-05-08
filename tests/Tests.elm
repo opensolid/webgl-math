@@ -3,6 +3,7 @@ module Tests exposing (..)
 import Test exposing (Test)
 import Expect
 import Fuzz
+import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Geometry.Fuzz as Fuzz
 import OpenSolid.Geometry.Expect as Expect
 import OpenSolid.Point3d as Point3d
@@ -174,6 +175,45 @@ vector3dRelativeToIsTransformByInverse =
         )
 
 
+point3dRotationMatchesMatrix : Test
+point3dRotationMatchesMatrix =
+    Test.fuzz3 Fuzz.point3d
+        Fuzz.direction3d
+        (Fuzz.floatRange -pi pi)
+        "Point3d rotation matches matrix version"
+        (\point direction angle ->
+            let
+                axis =
+                    Axis3d
+                        { originPoint = Point3d.origin
+                        , direction = direction
+                        }
+
+                rotationMatrix =
+                    Math.Matrix4.makeRotate angle (Direction3d.toVec3 direction)
+            in
+                Point3d.rotateAround axis angle point
+                    |> Expect.point3dWithin 1.0e-6
+                        (Point3d.transformBy rotationMatrix point)
+        )
+
+
+point3dTranslationMatchesMatrix : Test
+point3dTranslationMatchesMatrix =
+    Test.fuzz2 Fuzz.point3d
+        Fuzz.vector3d
+        "Point3d translation matches matrix version"
+        (\point vector ->
+            let
+                translationMatrix =
+                    Math.Matrix4.makeTranslate (Vector3d.toVec3 vector)
+            in
+                Point3d.translateBy vector point
+                    |> Expect.point3dWithin 1.0e-6
+                        (Point3d.transformBy translationMatrix point)
+        )
+
+
 all : Test
 all =
     Test.describe "OpenSolid.LinearAlgebra"
@@ -189,4 +229,6 @@ all =
         , vector3dPlaceInIsTransformBy
         , point3dRelativeToIsTransformByInverse
         , vector3dRelativeToIsTransformByInverse
+        , point3dRotationMatchesMatrix
+        , point3dTranslationMatchesMatrix
         ]
