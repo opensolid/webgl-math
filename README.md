@@ -4,12 +4,12 @@ This package supports interop between [`opensolid/geometry`](http://package.elm-
 and [`elm-community/linear-algebra`](http://package.elm-lang.org/packages/elm-community/linear-algebra/latest).
 You can:
 
-  - Convert OpenSolid 2D/3D point, vector and direction values to and from
-    `linear-algebra` `Vec2` and `Vec3` values
-  - Convert OpenSolid `Frame3d` values to the equivalent `linear-algebra` `Mat4`
-    transformation matrices
-  - Transform OpenSolid `Point3d` and `Vector3d` values using `linear-algebra`
-    `Mat4` transformation matrices
+  - Convert `opensolid/geometry` 2D/3D point, vector and direction values to and
+    from `linear-algebra` `Vec2` and `Vec3` values
+  - Convert `opensolid/geometry` `Frame3d` values to the equivalent
+    `linear-algebra` `Mat4` transformation matrices
+  - Transform `opensolid/geometry` `Point3d` and `Vector3d` values using
+    `linear-algebra` `Mat4` transformation matrices
 
 This is important for working with WebGL, since the [`elm-community/webgl`](http://package.elm-lang.org/packages/elm-community/webgl/latest)
 package requires using `linear-algebra` types when defining meshes and shaders.
