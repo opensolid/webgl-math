@@ -4,8 +4,9 @@ This package supports interop between [`opensolid/geometry`](http://package.elm-
 and [`elm-community/linear-algebra`](http://package.elm-lang.org/packages/elm-community/linear-algebra/latest).
 You can:
 
-  - Convert `opensolid/geometry` 2D/3D point, vector and direction values to and
-    from `linear-algebra` `Vec2` and `Vec3` values
+  - Convert `opensolid/geometry` `Point2d`, `Point3d`, `Vector2d`, `Vector3d`,
+    `Direction2d` and `Direction3d` values to and from `linear-algebra` `Vec2`
+    and `Vec3` values
   - Convert `opensolid/geometry` `Frame3d` values to the equivalent
     `linear-algebra` `Mat4` transformation matrices
   - Transform `opensolid/geometry` `Point3d` and `Vector3d` values using
