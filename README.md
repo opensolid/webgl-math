@@ -43,8 +43,8 @@ import OpenSolid.LinearAlgebra.Point3d as Point3d
 
 will let you use functions from both modules as if they were part of one big
 `Point3d` module. For example, you could use the `toVec3` function from this
-package with the `origin` value from the base `Point3d` module as if they were
-part of the same module:
+package's `Point3d` module with the `origin` value from the base `Point3d`
+module as if they were part of the same module:
 
 ```elm
 Point3d.toVec3 Point3d.origin
