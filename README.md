@@ -31,6 +31,26 @@ elm package install opensolid/linear-algebra
 [Full API documentation](http://package.elm-lang.org/packages/opensolid/linear-algebra/1.0.0)
 is available.
 
+## Usage details
+
+The modules in this package are all designed to be imported using `as` to
+'merge' them with the base OpenSolid modules; for example, using
+
+```elm
+import OpenSolid.Point3d as Point3d
+import OpenSolid.LinearAlgebra.Point3d as Point3d
+```
+
+will let you use functions from both modules as if they were part of one big
+`Point3d` module. For example, you could use the `toVec3` function from this
+package with the `origin` value from the base `Point3d` module as if they were
+part of the same module:
+
+```elm
+Point3d.toVec3 Point3d.origin
+--> Math.Vector3.vec3 0 0 0
+```
+
 ## Questions? Comments?
 
 Please [open a new issue](https://github.com/opensolid/linear-algebra/issues) if
