@@ -28,7 +28,7 @@ elm package install opensolid/linear-algebra
 
 ## Documentation
 
-[Full API documentation](http://package.elm-lang.org/packages/opensolid/linear-algebra/1.0.0)
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/linear-algebra/1.0.1)
 is available.
 
 ## Usage details
