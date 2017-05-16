@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.0",
     "summary": "Interop support for opensolid/geometry and Zinggi/elm-webgl-math",
     "repository": "https://github.com/opensolid/webgl-math.git",
     "license": "MPL-2.0",
