@@ -11,10 +11,10 @@ You can:
     `Vector3d` values using `elm-webgl-math` `Float3x3` and `Float4x4`
     transformation matrices
 
-You shouldn't need this package for general use - you should be able to do any
-sort of geometric transformation you need (rotations, translations etc.) using
-OpenSolid itself. However, this package may be useful for 'weirder'
-transformations like shear or non-uniform scaling.
+You shouldn't need this package for general use - you should be able to do most
+geometric transformation you need (rotations, translations etc.) using OpenSolid
+itself. However, this package may be useful for other transformations such as
+shear or non-uniform scaling.
 
 Note that the `Float2` and `Float3` types defined by `elm-webgl-math` are simply
 type aliases for tuples of floats, e.g.
