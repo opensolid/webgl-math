@@ -6,90 +6,34 @@ import Fuzz
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Geometry.Fuzz as Fuzz
 import OpenSolid.Geometry.Expect as Expect
+import OpenSolid.Point2d as Point2d
 import OpenSolid.Point3d as Point3d
+import OpenSolid.Vector2d as Vector2d
 import OpenSolid.Vector3d as Vector3d
-import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Direction3d as Direction3d
-import OpenSolid.LinearAlgebra.Vector2d as Vector2d
-import OpenSolid.LinearAlgebra.Vector3d as Vector3d
-import OpenSolid.LinearAlgebra.Direction2d as Direction2d
-import OpenSolid.LinearAlgebra.Direction3d as Direction3d
-import OpenSolid.LinearAlgebra.Point2d as Point2d
-import OpenSolid.LinearAlgebra.Point3d as Point3d
-import OpenSolid.LinearAlgebra.Frame3d as Frame3d
-import Math.Matrix4
-import Math.Vector3
+import OpenSolid.WebGLMath.Vector2d as Vector2d
+import OpenSolid.WebGLMath.Vector3d as Vector3d
+import OpenSolid.WebGLMath.Point2d as Point2d
+import OpenSolid.WebGLMath.Point3d as Point3d
+import OpenSolid.WebGLMath.Frame2d as Frame2d
+import OpenSolid.WebGLMath.Frame3d as Frame3d
+import Matrix3
+import Matrix4
+import Vector2
+import Vector3
 
 
-vector2dConversionRoundTrips : Test
-vector2dConversionRoundTrips =
-    Test.fuzz Fuzz.vector2d
-        "Vector2d conversion round-trips"
-        (\vector ->
-            vector
-                |> Vector2d.toVec2
-                |> Vector2d.fromVec2
-                |> Expect.vector2dWithin 1.0e-6 vector
-        )
-
-
-vector3dConversionRoundTrips : Test
-vector3dConversionRoundTrips =
-    Test.fuzz Fuzz.vector3d
-        "Vector3d conversion round-trips"
-        (\vector ->
-            vector
-                |> Vector3d.toVec3
-                |> Vector3d.fromVec3
-                |> Expect.vector3dWithin 1.0e-6 vector
-        )
-
-
-direction2dConversionRoundTrips : Test
-direction2dConversionRoundTrips =
-    Test.fuzz Fuzz.direction2d
-        "Direction2d conversion round-trips"
-        (\direction ->
-            direction
-                |> Direction2d.toVec2
-                |> Vector2d.fromVec2
-                |> Expect.vector2dWithin 1.0e-6 (Direction2d.toVector direction)
-        )
-
-
-direction3dConversionRoundTrips : Test
-direction3dConversionRoundTrips =
-    Test.fuzz Fuzz.direction3d
-        "Direction3d conversion round-trips"
-        (\direction ->
-            direction
-                |> Direction3d.toVec3
-                |> Vector3d.fromVec3
-                |> Expect.vector3dWithin 1.0e-6 (Direction3d.toVector direction)
-        )
-
-
-point2dConversionRoundTrips : Test
-point2dConversionRoundTrips =
-    Test.fuzz Fuzz.point2d
-        "Point2d conversion round-trips"
-        (\point ->
+point2dPlaceInIsTransform : Test
+point2dPlaceInIsTransform =
+    Test.fuzz2 Fuzz.point2d
+        Fuzz.frame2d
+        "Point2d.placeIn is equivalent to transform with Frame2d.toFloat3x3"
+        (\point frame ->
             point
-                |> Point2d.toVec2
-                |> Point2d.fromVec2
-                |> Expect.point2dWithin 1.0e-6 point
-        )
-
-
-point3dConversionRoundTrips : Test
-point3dConversionRoundTrips =
-    Test.fuzz Fuzz.point3d
-        "Point3d conversion round-trips"
-        (\point ->
-            point
-                |> Point3d.toVec3
-                |> Point3d.fromVec3
-                |> Expect.point3dWithin 1.0e-6 point
+                |> Point2d.coordinates
+                |> (Matrix3.transform (Frame2d.toFloat3x3 frame))
+                |> Point2d
+                |> Expect.point2d (Point2d.placeIn frame point)
         )
 
 
@@ -97,45 +41,89 @@ point3dPlaceInIsTransform : Test
 point3dPlaceInIsTransform =
     Test.fuzz2 Fuzz.point3d
         Fuzz.frame3d
-        "Point3d.placeIn is equivalent to transform with Frame3d.toMat4"
+        "Point3d.placeIn is equivalent to transform with Frame3d.toFloat4x4"
         (\point frame ->
             point
-                |> Point3d.toVec3
-                |> (Math.Matrix4.transform (Frame3d.toMat4 frame))
-                |> Point3d.fromVec3
-                |> Expect.point3dWithin 1.0e-6 (Point3d.placeIn frame point)
+                |> Point3d.coordinates
+                |> (Matrix4.transform (Frame3d.toFloat4x4 frame))
+                |> Point3d
+                |> Expect.point3d (Point3d.placeIn frame point)
         )
+
+
+vector2dPlaceInIsTransform : Test
+vector2dPlaceInIsTransform =
+    let
+        transformVec mat vec =
+            Vector2.sub
+                (Matrix3.transform mat vec)
+                (Matrix3.transform mat ( 0, 0 ))
+    in
+        Test.fuzz2 Fuzz.vector2d
+            Fuzz.frame2d
+            "Vector2d.placeIn is equivalent to transform with Frame2d.toFloat3x3"
+            (\vector frame ->
+                vector
+                    |> Vector2d.components
+                    |> transformVec (Frame2d.toFloat3x3 frame)
+                    |> Vector2d
+                    |> Expect.vector2d (Vector2d.placeIn frame vector)
+            )
 
 
 vector3dPlaceInIsTransform : Test
 vector3dPlaceInIsTransform =
     let
         transformVec mat vec =
-            Math.Vector3.sub
-                (Math.Matrix4.transform mat vec)
-                (Math.Matrix4.transform mat (Math.Vector3.vec3 0 0 0))
+            Vector3.sub
+                (Matrix4.transform mat vec)
+                (Matrix4.transform mat ( 0, 0, 0 ))
     in
         Test.fuzz2 Fuzz.vector3d
             Fuzz.frame3d
-            "Vector3d.placeIn is equivalent to transform with Frame3d.toMat4"
+            "Vector3d.placeIn is equivalent to transform with Frame3d.toFloat4x4"
             (\vector frame ->
                 vector
-                    |> Vector3d.toVec3
-                    |> transformVec (Frame3d.toMat4 frame)
-                    |> Vector3d.fromVec3
-                    |> Expect.vector3dWithin 1.0e-6 (Vector3d.placeIn frame vector)
+                    |> Vector3d.components
+                    |> transformVec (Frame3d.toFloat4x4 frame)
+                    |> Vector3d
+                    |> Expect.vector3d (Vector3d.placeIn frame vector)
             )
+
+
+point2dPlaceInIsTransformBy : Test
+point2dPlaceInIsTransformBy =
+    Test.fuzz2 Fuzz.point2d
+        Fuzz.frame2d
+        "Point2d.placeIn is equivalent to transformBy Frame2d.toFloat3x3"
+        (\point frame ->
+            point
+                |> Point2d.transformBy (Frame2d.toFloat3x3 frame)
+                |> Expect.point2d (Point2d.placeIn frame point)
+        )
 
 
 point3dPlaceInIsTransformBy : Test
 point3dPlaceInIsTransformBy =
     Test.fuzz2 Fuzz.point3d
         Fuzz.frame3d
-        "Point3d.placeIn is equivalent to transformBy Frame3d.toMat4"
+        "Point3d.placeIn is equivalent to transformBy Frame3d.toFloat4x4"
         (\point frame ->
             point
-                |> Point3d.transformBy (Frame3d.toMat4 frame)
-                |> Expect.point3dWithin 1.0e-6 (Point3d.placeIn frame point)
+                |> Point3d.transformBy (Frame3d.toFloat4x4 frame)
+                |> Expect.point3d (Point3d.placeIn frame point)
+        )
+
+
+vector2dPlaceInIsTransformBy : Test
+vector2dPlaceInIsTransformBy =
+    Test.fuzz2 Fuzz.vector2d
+        Fuzz.frame2d
+        "Vector2d.placeIn is equivalent to transformBy Frame2d.toFloat3x3"
+        (\vector frame ->
+            vector
+                |> Vector2d.transformBy (Frame2d.toFloat3x3 frame)
+                |> Expect.vector2d (Vector2d.placeIn frame vector)
         )
 
 
@@ -143,11 +131,11 @@ vector3dPlaceInIsTransformBy : Test
 vector3dPlaceInIsTransformBy =
     Test.fuzz2 Fuzz.vector3d
         Fuzz.frame3d
-        "Vector3d.placeIn is equivalent to transformBy Frame3d.toMat4"
+        "Vector3d.placeIn is equivalent to transformBy Frame3d.toFloat4x4"
         (\vector frame ->
             vector
-                |> Vector3d.transformBy (Frame3d.toMat4 frame)
-                |> Expect.vector3dWithin 1.0e-6 (Vector3d.placeIn frame vector)
+                |> Vector3d.transformBy (Frame3d.toFloat4x4 frame)
+                |> Expect.vector3d (Vector3d.placeIn frame vector)
         )
 
 
@@ -155,11 +143,12 @@ point3dRelativeToIsTransformByInverse : Test
 point3dRelativeToIsTransformByInverse =
     Test.fuzz2 Fuzz.point3d
         Fuzz.frame3d
-        "Point3d.relativeTo is equivalent to transformBy inverse of Frame3d.toMat4"
+        "Point3d.relativeTo is equivalent to transformBy inverse of Frame3d.toFloat4x4"
         (\point frame ->
             point
-                |> Point3d.transformBy (Math.Matrix4.inverseOrthonormal (Frame3d.toMat4 frame))
-                |> Expect.point3dWithin 1.0e-6 (Point3d.relativeTo frame point)
+                |> Point3d.transformBy
+                    (Matrix4.inverseRigidBodyTransform (Frame3d.toFloat4x4 frame))
+                |> Expect.point3d (Point3d.relativeTo frame point)
         )
 
 
@@ -167,11 +156,12 @@ vector3dRelativeToIsTransformByInverse : Test
 vector3dRelativeToIsTransformByInverse =
     Test.fuzz2 Fuzz.vector3d
         Fuzz.frame3d
-        "Vector3d.relativeTo is equivalent to transformBy inverse of Frame3d.toMat4"
+        "Vector3d.relativeTo is equivalent to transformBy inverse of Frame3d.toFloat4x4"
         (\vector frame ->
             vector
-                |> Vector3d.transformBy (Math.Matrix4.inverseOrthonormal (Frame3d.toMat4 frame))
-                |> Expect.vector3dWithin 1.0e-6 (Vector3d.relativeTo frame vector)
+                |> Vector3d.transformBy
+                    (Matrix4.inverseRigidBodyTransform (Frame3d.toFloat4x4 frame))
+                |> Expect.vector3d (Vector3d.relativeTo frame vector)
         )
 
 
@@ -190,10 +180,10 @@ point3dRotationMatchesMatrix =
                         }
 
                 rotationMatrix =
-                    Math.Matrix4.makeRotate angle (Direction3d.toVec3 direction)
+                    Matrix4.makeRotate angle (Direction3d.components direction)
             in
                 Point3d.rotateAround axis angle point
-                    |> Expect.point3dWithin 1.0e-6
+                    |> Expect.point3d
                         (Point3d.transformBy rotationMatrix point)
         )
 
@@ -206,26 +196,24 @@ point3dTranslationMatchesMatrix =
         (\point vector ->
             let
                 translationMatrix =
-                    Math.Matrix4.makeTranslate (Vector3d.toVec3 vector)
+                    Matrix4.makeTranslate (Vector3d.components vector)
             in
                 Point3d.translateBy vector point
-                    |> Expect.point3dWithin 1.0e-6
+                    |> Expect.point3d
                         (Point3d.transformBy translationMatrix point)
         )
 
 
 all : Test
 all =
-    Test.describe "OpenSolid.LinearAlgebra"
-        [ vector2dConversionRoundTrips
-        , vector3dConversionRoundTrips
-        , direction2dConversionRoundTrips
-        , direction3dConversionRoundTrips
-        , point2dConversionRoundTrips
-        , point3dConversionRoundTrips
+    Test.describe "OpenSolid.WebGLMath"
+        [ point2dPlaceInIsTransform
         , point3dPlaceInIsTransform
+        , vector2dPlaceInIsTransform
         , vector3dPlaceInIsTransform
+        , point2dPlaceInIsTransformBy
         , point3dPlaceInIsTransformBy
+        , vector2dPlaceInIsTransformBy
         , vector3dPlaceInIsTransformBy
         , point3dRelativeToIsTransformByInverse
         , vector3dRelativeToIsTransformByInverse
