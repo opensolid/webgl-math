@@ -1,6 +1,6 @@
 {
-    "version": "1.0.0",
-    "summary": "Interop support for opensolid/geometry and Zinggi/elm-webgl-math",
+    "version": "1.0.1",
+    "summary": "DEPRECATED: Moved to opensolid/webgl-math-interop.",
     "repository": "https://github.com/opensolid/webgl-math.git",
     "license": "MPL-2.0",
     "source-directories": [
